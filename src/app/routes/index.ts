@@ -1,10 +1,11 @@
 import { Router } from "express";
+import { UserRoutes } from "../modules/users/user.routes";
 
 
 
 // /api
 const routes = [
-  { path: "/auth", route: authRouter },
+  { path: "/users", route: UserRoutes },
 
 ];
 
