@@ -1,0 +1,29 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+.env
+yarn.lock
+
+# image folder
+upload
+
+# Logs & Temp files
+logs/
+*.log
+debug.log
+tmp/
+dist/
+
+# Database Files (MongoDB dump)
+dump/
+*.sql
+*.sqlite
+
+# Build & Cache files
+.cache/
+.vscode/
+.idea/
+.DS_Store
+coverage/
+
