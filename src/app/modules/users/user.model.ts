@@ -18,7 +18,13 @@ const userSchema = new Schema<IUser>(
 
         isActive: { type: Boolean, default: true },
         isVerified: { type: Boolean, default: false },
-        isDeleted: { type: Boolean, default: false }
+        isDeleted: { type: Boolean, default: false },
+
+        resetPasswordToken: String,
+        resetPasswordExpire: Date,
+
+        resetOtp: String,
+        resetOtpExpire: Date,
     },
     {
         timestamps: true

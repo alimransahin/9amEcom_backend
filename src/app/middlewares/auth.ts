@@ -6,10 +6,16 @@ import AppError from "./AppError";
 
 const auth = (...roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
-        const token = req.headers.authorization;
+        const authHeader = req.headers.authorization;
 
-        if (!token) {
+        if (!authHeader) {
             throw new AppError(status.UNAUTHORIZED, "Unauthorized");
+        }
+
+        // 🔥 Fix here
+        const token = authHeader.split(" ")[1];
+        if (!token) {
+            throw new AppError(status.UNAUTHORIZED, "Invalid token");
         }
 
         try {
@@ -19,13 +25,12 @@ const auth = (...roles: string[]) => {
             ) as any;
 
             req.user = decoded;
-
             if (roles.length && !roles.includes(decoded.role)) {
                 throw new AppError(status.FORBIDDEN, "Forbidden");
             }
 
             next();
-        } catch {
+        } catch (err) {
             throw new AppError(status.UNAUTHORIZED, "Invalid token");
         }
     };

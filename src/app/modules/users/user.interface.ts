@@ -16,4 +16,10 @@ export interface IUser {
     isActive: boolean;
     isVerified: boolean;
     isDeleted: boolean;
+
+    resetPasswordToken?: string;
+    resetPasswordExpire?: Date;
+
+    resetOtp?: string;
+    resetOtpExpire?: Date;
 }
