@@ -10,3 +10,7 @@ export const createUserZodSchema = z.object({
         address: z.string().optional()
     })
 });
+
+export const updateUserZodSchema = z.object({
+    body: createUserZodSchema.shape.body.partial(),
+});

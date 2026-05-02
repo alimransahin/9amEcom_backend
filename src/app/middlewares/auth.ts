@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import status from "http-status";
 import config from "../config";
-import AppError from "./AppError";
+import AppError from "../../errors/AppError";
 
 const auth = (...roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
@@ -12,8 +12,8 @@ const auth = (...roles: string[]) => {
             throw new AppError(status.UNAUTHORIZED, "Unauthorized");
         }
 
-        // 🔥 Fix here
         const token = authHeader.split(" ")[1];
+
         if (!token) {
             throw new AppError(status.UNAUTHORIZED, "Invalid token");
         }
@@ -25,12 +25,20 @@ const auth = (...roles: string[]) => {
             ) as any;
 
             req.user = decoded;
+
+            // 🔥 role check
             if (roles.length && !roles.includes(decoded.role)) {
                 throw new AppError(status.FORBIDDEN, "Forbidden");
             }
 
             next();
+
         } catch (err) {
+            // 🔥 FIX
+            if (err instanceof AppError) {
+                throw err;
+            }
+
             throw new AppError(status.UNAUTHORIZED, "Invalid token");
         }
     };

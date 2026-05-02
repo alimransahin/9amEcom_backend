@@ -4,7 +4,7 @@ import { User } from "../users/user.model";
 import status from "http-status";
 import config from "../../config";
 import { createToken, verifyToken } from "../../utils/jwt";
-import AppError from "../../middlewares/AppError";
+import AppError from "../../../errors/AppError";
 
 // -------------------- REGISTER --------------------
 const registerUser = async (payload: any) => {

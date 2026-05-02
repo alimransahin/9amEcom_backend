@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import { IUser, USER_ROLE } from "./user.interface";
+import { Collection } from "../../utils/modelConstants";
 
 const userSchema = new Schema<IUser>(
     {
@@ -31,4 +32,4 @@ const userSchema = new Schema<IUser>(
     }
 );
 
-export const User = model<IUser>("User", userSchema);
+export const User = model<IUser>(Collection.User, userSchema);

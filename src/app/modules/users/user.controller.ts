@@ -3,31 +3,22 @@ import status from "http-status";
 import { UserService } from "./user.service";
 import sendResponse from "../../utils/sendResponse";
 import catchAsync from "../../utils/catchAsync";
-import AppError from "../../middlewares/AppError";
+import AppError from "../../../errors/AppError";
 
-// ➕ Create User
-const createUser = catchAsync(async (req: Request, res: Response) => {
-    const result = await UserService.createUser(req.body);
-
-    sendResponse(res, {
-        statusCode: status.CREATED,
-        success: true,
-        message: "User created successfully",
-        data: result
-    });
-});
 
 // 📋 Get All Users
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-    const result = await UserService.getAllUsers();
+    const { data, total } = await UserService.getAllUsers(req.query);
 
-    const isEmpty = !result || result.length === 0;
+    const isEmpty = total === 0;
 
     sendResponse(res, {
         statusCode: isEmpty ? status.NOT_FOUND : status.OK,
         success: !isEmpty,
         message: isEmpty ? "No users found" : "Users retrieved successfully",
-        data: result || []
+        data,
+        count: data.length,
+        total
     });
 });
 
@@ -47,6 +38,37 @@ const getSingleUser = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const getMe = async (req: Request, res: Response) => {
+    const userId = req.user.userId;
+
+    const result = await UserService.getMe(userId);
+    if (!result) {
+        throw new AppError(status.NOT_FOUND, "User not found");
+    }
+
+    sendResponse(res, {
+        statusCode: status.OK,
+        success: true,
+        message: "User profile fetched successfully",
+        data: result
+    });
+};
+
+const updateUser = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const result = await UserService.updateUser(id as string, req.body);
+    if (!result) {
+        throw new AppError(status.NOT_FOUND, "Failed to update user");
+    }
+    sendResponse(res, {
+        statusCode: status.OK,
+        success: true,
+        message: "User updated successfully",
+        data: result
+    });
+};
+
 // 🗑️ Delete User (soft delete recommended in service)
 const deleteUser = catchAsync(async (req: Request, res: Response) => {
     const result = await UserService.deleteUser(req.params.id as string);
@@ -64,8 +86,9 @@ const deleteUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const UserController = {
-    createUser,
     getAllUsers,
     getSingleUser,
-    deleteUser
+    deleteUser,
+    updateUser,
+    getMe
 };

@@ -3,7 +3,7 @@ import status from "http-status";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { AuthService } from "./auth.service";
-import AppError from "../../middlewares/AppError";
+import AppError from "../../../errors/AppError";
 import config from "../../config";
 
 // 📝 Register
