@@ -1,4 +1,5 @@
 export enum Collection {
+  Category = "Category",
   Brand = "Brand",
   User = "User",
 }
@@ -18,8 +19,6 @@ export enum SubDomainCollection {
 
   Account = 'Account',
   Banner = "Banner",
-  Brand = "Brand",
-  Category = "Category",
   ConfirmedOnlineOrder = "Confirmed_online_order",
   Copyright = "Copyright",
   Coupon = "Coupon",
