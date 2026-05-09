@@ -15,7 +15,7 @@ router.post(
 );
 
 // GET ALL
-router.get("/", auth("admin"), CategoryController.getAllCategory);
+router.get("/", CategoryController.getAllCategory);
 
 // GET SINGLE
 router.get("/:id", auth("admin"), CategoryController.getSingleCategory);

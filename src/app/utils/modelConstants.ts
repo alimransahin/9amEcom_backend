@@ -2,6 +2,7 @@ export enum Collection {
   Category = "Category",
   Brand = "Brand",
   User = "User",
+  Product = "Product",
 }
 
 

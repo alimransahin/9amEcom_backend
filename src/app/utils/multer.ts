@@ -1,4 +1,3 @@
-
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -17,22 +16,30 @@ const createStorage = (folderName: string) => {
         },
 
         filename: (req, file, cb) => {
-            const uniqueName = Date.now().toString();
+            // get file extension
+            const ext = path.extname(file.originalname);
+
+            // unique file name
+            const uniqueName = `${Date.now()}${ext}`;
+
             cb(null, uniqueName);
         },
     });
 };
 
-// 🔥 reusable function
+// reusable function
 export const uploadFile = (folderName: string) =>
     multer({
         storage: createStorage(folderName),
+
         fileFilter: (req, file, cb) => {
             if (!file.mimetype.startsWith("image")) {
                 return cb(new Error("Only images allowed"));
             }
+
             cb(null, true);
         },
+
         limits: {
             fileSize: 2 * 1024 * 1024,
         },
