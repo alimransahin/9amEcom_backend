@@ -11,8 +11,8 @@ import { ProductRoutes } from "../modules/product/product.routes";
 const routes = [
   { path: "/users", route: UserRoutes },
   { path: "/auth", route: AuthRoutes },
-  { path: "/brand", route: BrandRoutes },
-  { path: "/category", route: CategoryRoutes },
+  { path: "/brands", route: BrandRoutes },
+  { path: "/categories", route: CategoryRoutes },
   { path: "/products", route: ProductRoutes },
 
 

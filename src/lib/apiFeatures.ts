@@ -102,8 +102,7 @@ export const apiFeatures = async <T>(
     .skip(skip)
     .limit(limit)
     .sort(sort)
-    .select(select)
-    .lean();;
+    .select(select);
 
   return { mongooseQuery, total };
 };

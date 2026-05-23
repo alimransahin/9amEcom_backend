@@ -19,7 +19,6 @@ const updateUser = async (id: string, payload: Partial<IUser>) => {
     // ❗ prevent updating restricted fields
     const restrictedFields = ["password", "role", "isDeleted"];
     restrictedFields.forEach(field => delete (payload as any)[field]);
-    console.log(payload)
     const updatedUser = await User.findOneAndUpdate(
         { _id: id, isDeleted: false },
         payload,

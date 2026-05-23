@@ -1,6 +1,7 @@
 import { Connection, model, Query, Schema, Types } from "mongoose";
 import { IBrand } from "./brand.interface";
 import { Collection } from "../../utils/modelConstants";
+import { customTransform } from "../../../lib/customTransform";
 
 
 const brandSchema = new Schema<IBrand>(
@@ -13,7 +14,15 @@ const brandSchema = new Schema<IBrand>(
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      transform(_doc, ret, _options) {
+        const imageFields = ['image']
+        customTransform(ret, imageFields)
+      },
+    }
+  }
 );
 
 
