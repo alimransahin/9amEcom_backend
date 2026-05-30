@@ -4,6 +4,7 @@ import { AuthRoutes } from "../modules/auth/auth.routes";
 import { BrandRoutes } from "../modules/brand/brand.route";
 import { CategoryRoutes } from "../modules/category/category.route";
 import { ProductRoutes } from "../modules/product/product.routes";
+import { SizeChartRoutes } from "../modules/size/size.route";
 
 
 
@@ -14,6 +15,8 @@ const routes = [
   { path: "/brands", route: BrandRoutes },
   { path: "/categories", route: CategoryRoutes },
   { path: "/products", route: ProductRoutes },
+  { path: "/size-charts", route: SizeChartRoutes },
+
 
 
 ];

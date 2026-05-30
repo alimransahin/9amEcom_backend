@@ -3,6 +3,7 @@ export enum Collection {
   Brand = "Brand",
   User = "User",
   Product = "Product",
+  SizeChart = "SizeChart",
 }
 
 
