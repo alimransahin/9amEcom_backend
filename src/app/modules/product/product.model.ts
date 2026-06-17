@@ -1,36 +1,112 @@
-// product.model.ts
-
 import { Schema, model } from "mongoose";
 import { IProduct } from "./product.interface";
 import { Collection } from "../../utils/modelConstants";
 
+const productVariantSchema = new Schema(
+    {
+        size: {
+            type: String,
+            required: true,
+        },
+
+        color: String,
+
+        sku: String,
+
+        price: {
+            type: Number,
+            default: 0,
+        },
+
+        stock: {
+            type: Number,
+            default: 0,
+        },
+    },
+    {
+        _id: false,
+    }
+);
 
 const productSchema = new Schema<IProduct>(
     {
-        name: { type: String, required: true },
-        sku: { type: String, unique: true, sparse: true },
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+        },
 
-        description: { type: String },
-        category: { type: Schema.Types.ObjectId, ref: Collection.Category, required: true },
-        brand: { type: Schema.Types.ObjectId, ref: Collection.Brand, required: false },
+        sku: {
+            type: String,
+            unique: true,
+            sparse: true,
+            trim: true,
+        },
+
+        description: String,
+
+        category: {
+            type: Schema.Types.ObjectId,
+            ref: Collection.Category,
+            required: true,
+        },
+
         subCategory: String,
-        size: [String],
 
-        purchasePrice: { type: Number, required: true },
-        price: { type: Number, required: true },
-        discountPrice: Number,
+        brand: {
+            type: Schema.Types.ObjectId,
+            ref: Collection.Brand,
+        },
 
-        stock: { type: Number, required: true, min: 0, default: 0 },
+        sizeChart: {
+            type: Schema.Types.ObjectId,
+            ref: Collection.SizeChart,
+        },
 
+        purchasePrice: {
+            type: Number,
+            default: 0,
+        },
 
+        price: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
 
-        images: [{ type: String }],
+        discountPrice: {
+            type: Number,
+            default: 0,
+        },
 
-        isActive: { type: Boolean, default: true },
+        discountPercent: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 100,
+        },
+
+        variants: {
+            type: [productVariantSchema],
+            default: [],
+        },
+
+        images: {
+            type: [String],
+            default: [],
+        },
+
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
     },
-    { timestamps: true }
+    {
+        timestamps: true,
+    }
 );
 
-
-
-export const Product = model<IProduct>(Collection.Product, productSchema);
+export const Product = model<IProduct>(
+    Collection.Product,
+    productSchema
+);
