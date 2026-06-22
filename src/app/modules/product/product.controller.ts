@@ -39,20 +39,21 @@ const createProduct = catchAsync(async (req: Request, res: Response) => {
 
 // get all products
 const getAllProducts = catchAsync(async (req: Request, res: Response) => {
-  const result = await ProductService.getAllProducts(req);
+  const { result, total } = await ProductService.getAllProducts(req);
 
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
     message: "Products retrieved successfully",
     data: result,
+    total,
   });
 });
 
 // get single product
 const getSingleProduct = catchAsync(async (req: Request, res: Response) => {
   const result = await ProductService.getSingleProduct(req.params.id as string);
-
+  console.log({ result, id: req.params.id })
   if (!result) {
     throw new AppError(status.NOT_FOUND, "Product not found");
   }

@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 import { IProduct } from "./product.interface";
 import { Collection } from "../../utils/modelConstants";
+import { customTransform } from "../../../lib/customTransform";
 
 const productVariantSchema = new Schema(
     {
@@ -12,11 +13,6 @@ const productVariantSchema = new Schema(
         color: String,
 
         sku: String,
-
-        price: {
-            type: Number,
-            default: 0,
-        },
 
         stock: {
             type: Number,
@@ -103,6 +99,12 @@ const productSchema = new Schema<IProduct>(
     },
     {
         timestamps: true,
+        toJSON: {
+            transform(_doc, ret, _options) {
+                const imageFields = ['images']
+                customTransform(ret, imageFields)
+            },
+        }
     }
 );
 

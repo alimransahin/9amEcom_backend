@@ -14,6 +14,23 @@ import {
     updateProductZodSchema,
 } from "./product.validation";
 
+
+export const parseProductBody = (
+    req,
+    res,
+    next
+) => {
+    try {
+        if (req.body.variants) {
+            req.body.variants =
+                JSON.parse(req.body.variants);
+        }
+
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
 const router = Router();
 
 // create product
@@ -21,9 +38,12 @@ router.post(
     "/",
     auth("admin"),
     uploadFile("products").array("images", 10),
+    parseProductBody,
     validateRequest(createProductZodSchema),
     ProductController.createProduct
 );
+
+
 
 // get all products
 router.get(

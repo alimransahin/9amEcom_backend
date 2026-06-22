@@ -1,0 +1,16 @@
+export const parseProductBody = (
+  req,
+  res,
+  next
+) => {
+  try {
+    if (req.body.variants) {
+      req.body.variants =
+        JSON.parse(req.body.variants);
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};

@@ -41,7 +41,6 @@ const getAllProducts = async (req: Request) => {
 const getSingleProduct = async (id: string) => {
   return await Product.findOne({
     _id: id,
-    isDeleted: false,
   }).populate("category");
 };
 

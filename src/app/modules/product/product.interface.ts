@@ -7,7 +7,6 @@ export interface IProductVariant {
     size: string;
     color?: string;
     sku?: string;
-    price?: number;
     stock?: number;
 }
 
