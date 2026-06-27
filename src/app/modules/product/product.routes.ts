@@ -21,16 +21,32 @@ export const parseProductBody = (
     next
 ) => {
     try {
-        if (req.body.variants) {
-            req.body.variants =
-                JSON.parse(req.body.variants);
+
+        if (
+            req.body?.variants &&
+            typeof req.body.variants === "string"
+        ) {
+            req.body.variants = JSON.parse(
+                req.body.variants
+            );
+        }
+
+        if (
+            req.body?.existingImages &&
+            typeof req.body.existingImages === "string"
+        ) {
+            req.body.existingImages = JSON.parse(
+                req.body.existingImages
+            );
         }
 
         next();
+
     } catch (error) {
         next(error);
     }
 };
+
 const router = Router();
 
 // create product
@@ -62,6 +78,14 @@ router.patch(
     "/:id",
     auth("admin"),
     uploadFile("products").array("images", 10),
+
+    (req, res, next) => {
+        console.log("BODY =>", req.body);
+        console.log("FILES =>", req.files);
+        next();
+    },
+
+    parseProductBody,
     validateRequest(updateProductZodSchema),
     ProductController.updateProduct
 );

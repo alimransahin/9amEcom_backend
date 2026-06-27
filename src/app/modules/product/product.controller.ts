@@ -78,26 +78,44 @@ const updateProduct = catchAsync(async (req: Request, res: Response) => {
     throw new AppError(status.NOT_FOUND, "Product not found");
   }
 
-  // new images uploaded
-  if (req.files && Array.isArray(req.files)) {
-    // delete old images
-    if (existing.images?.length) {
-      existing.images.forEach((img: string) => {
-        const oldPath = path.join(process.cwd(), img);
+  // existing images from frontend
+  const existingImages = productInfo.existingImages || [];
 
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
-        }
-      });
+  // newly uploaded images
+  const uploadedImages =
+    req.files && Array.isArray(req.files)
+      ? req.files.map(
+        (file: Express.Multer.File) =>
+          `/uploads/products/${file.filename}`
+      )
+      : [];
+
+  // final images
+  const finalImages = [
+    ...existingImages,
+    ...uploadedImages,
+  ];
+
+  // remove deleted old images from server
+  const deletedImages = existing.images.filter(
+    (img: string) => !existingImages.includes(img)
+  );
+
+  deletedImages.forEach((img: string) => {
+    const imagePath = path.join(process.cwd(), img);
+
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
     }
+  });
 
-    productInfo.images = req.files.map(
-      (file: Express.Multer.File) =>
-        `/uploads/products/${file.filename}`
-    );
-  }
+  // assign final images
+  productInfo.images = finalImages;
 
-  const result = await ProductService.updateProduct(id as string, productInfo);
+  const result = await ProductService.updateProduct(
+    id as string,
+    productInfo
+  );
 
   if (!result) {
     throw new AppError(status.NOT_FOUND, "Failed to update product");
