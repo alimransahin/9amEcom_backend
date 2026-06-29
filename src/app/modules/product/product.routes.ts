@@ -1,6 +1,6 @@
 // product.route.ts
 
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 
 import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
@@ -16,9 +16,9 @@ import {
 
 
 export const parseProductBody = (
-    req,
-    res,
-    next
+    req: Request,
+    res: Response,
+    next: NextFunction
 ) => {
     try {
 
