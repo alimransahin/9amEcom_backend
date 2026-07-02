@@ -67,40 +67,62 @@ const getSingleProduct = catchAsync(async (req: Request, res: Response) => {
 });
 
 // update product
+
+
 const updateProduct = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const productInfo = req.body;
-
+  console.log({ id })
   // existing product
   const existing = await ProductService.getSingleProduct(id as string);
+  console.log({ existing })
 
   if (!existing) {
     throw new AppError(status.NOT_FOUND, "Product not found");
   }
 
-  // existing images from frontend
-  const existingImages = productInfo.existingImages || [];
+  /**
+   * Normalize existing images from frontend
+   */
 
-  // newly uploaded images
-  const uploadedImages =
+  let existingImages: string[] = [];
+
+  if (productInfo.images) {
+    if (Array.isArray(productInfo.images)) {
+      existingImages = productInfo.images;
+    } else if (typeof productInfo.images === "string") {
+      existingImages = [productInfo.images];
+    }
+  }
+
+
+
+  /**
+   * Newly uploaded images
+   */
+  const uploadedImages: string[] =
     req.files && Array.isArray(req.files)
       ? req.files.map(
         (file: Express.Multer.File) =>
-          `/uploads/products/${file.filename}`
+          `/uploads/products/${file.filename} `
       )
       : [];
 
-  // final images
-  const finalImages = [
-    ...existingImages,
-    ...uploadedImages,
-  ];
+  /**
+   * Final images to keep in DB
+   */
+  const finalImages = [...existingImages, ...uploadedImages];
 
-  // remove deleted old images from server
+  /**
+   * Find deleted images
+   */
   const deletedImages = existing.images.filter(
-    (img: string) => !existingImages.includes(img)
+    (img: string) => !finalImages.includes(img)
   );
 
+  /**
+   * Delete removed images from server
+   */
   deletedImages.forEach((img: string) => {
     const imagePath = path.join(process.cwd(), img);
 
@@ -109,13 +131,15 @@ const updateProduct = catchAsync(async (req: Request, res: Response) => {
     }
   });
 
-  // assign final images
+  /**
+   * Update DB images field
+   */
   productInfo.images = finalImages;
 
-  const result = await ProductService.updateProduct(
-    id as string,
-    productInfo
-  );
+  /**
+   * Update product in DB
+   */
+  const result = await ProductService.updateProduct(id as string, productInfo);
 
   if (!result) {
     throw new AppError(status.NOT_FOUND, "Failed to update product");
@@ -128,6 +152,8 @@ const updateProduct = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
+
 
 // delete product
 const deleteProduct = catchAsync(async (req: Request, res: Response) => {
