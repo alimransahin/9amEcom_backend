@@ -91,6 +91,14 @@ const productSchema = new Schema<IProduct>(
             type: [String],
             default: [],
         },
+        isFetured: {
+            type: Boolean,
+            default: false,
+        },
+        isTrending: {
+            type: Boolean,
+            default: false,
+        },
 
         isActive: {
             type: Boolean,

@@ -38,6 +38,14 @@ const getAllProducts = async (req: Request) => {
   return { result, total };
 };
 
+const getNewProducts = async () => {
+  const result = await Product.find({
+    isActive: true,
+    isTrending: true,
+  });
+  return result
+};
+
 const getSingleProduct = async (id: string) => {
   return await Product.findById(id).populate("category");
 };
@@ -62,6 +70,30 @@ const updateProduct = async (
 
   return updatedProduct;
 };
+const updateProductStatus = async (
+  id: string,
+  status: "isTrending" | "isActive"
+) => {
+  const product = await Product.findById(id);
+  if (!product) {
+    throw new Error("Product not found");
+  }
+
+  const updatedProduct = await Product.findByIdAndUpdate(
+    id,
+    {
+      $set: {
+        [status]: !product[status],
+      },
+    },
+    {
+      returnDocument: "after",
+      runValidators: true,
+    }
+  );
+
+  return updatedProduct;
+};
 
 const deleteProduct = async (id: string) => {
   // soft delete
@@ -80,4 +112,6 @@ export const ProductService = {
   getSingleProduct,
   updateProduct,
   deleteProduct,
+  updateProductStatus,
+  getNewProducts
 };

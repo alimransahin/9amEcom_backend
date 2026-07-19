@@ -8,6 +8,7 @@ export const createCategorySchema = z.object({
     description: z.string().optional(),
     subCategory: z.array(z.string()).optional(),
     isActive: z.boolean().optional(),
+    featuredProduct: z.string().optional(),
 
 });
 

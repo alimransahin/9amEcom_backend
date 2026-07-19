@@ -85,20 +85,8 @@ const productBaseSchema = z.object({
         .default([]),
 
 
-    images: z.preprocess(
-        (val) => {
-            // undefined
-            if (!val) return [];
-
-            // already array
-            if (Array.isArray(val)) return val;
-
-            // single string -> convert to array
-            return [val];
-        },
-        z.array(z.string()).optional()
-    ),
-
+    images: z.any().optional(),
+    existingImages: z.array(z.string()).optional(),
 
     isActive:
         z.boolean().optional(),

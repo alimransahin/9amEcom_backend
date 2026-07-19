@@ -41,17 +41,21 @@ export const apiFeatures = async <T>(
   }
 
   // 🎯 Filter
+
   const filterObj: Record<string, any> = {};
 
-  if (query._filter) {
-    for (const [key, value] of Object.entries(query._filter)) {
+  for (const [key, value] of Object.entries(query)) {
+    const match = key.match(/^_filter\[(.+)\]$/);
 
-      // comma → $in
-      if (typeof value === 'string' && value.includes(',')) {
-        filterObj[key] = { $in: value.split(',').map(v => v.trim()) };
-      } else {
-        filterObj[key] = value;
-      }
+    if (!match) continue;
+
+    const field = match[1];
+    if (typeof value === "string" && value.includes(",")) {
+      filterObj[field] = {
+        $in: value.split(",").map((v) => v.trim()),
+      };
+    } else {
+      filterObj[field] = value;
     }
   }
 

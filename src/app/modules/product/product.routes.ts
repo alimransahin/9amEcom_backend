@@ -15,41 +15,36 @@ import {
 } from "./product.validation";
 
 
+
+const router = Router();
+
 export const parseProductBody = (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
-
         if (
-            req.body?.variants &&
+            req.body.variants &&
             typeof req.body.variants === "string"
         ) {
-            req.body.variants = JSON.parse(
-                req.body.variants
-            );
+            req.body.variants = JSON.parse(req.body.variants);
         }
 
         if (
-            req.body?.existingImages &&
+            req.body.existingImages &&
             typeof req.body.existingImages === "string"
         ) {
             req.body.existingImages = JSON.parse(
                 req.body.existingImages
             );
         }
-
         next();
-
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        next(err);
     }
 };
 
-const router = Router();
-
-// create product
 router.post(
     "/",
     auth("admin"),
@@ -59,36 +54,28 @@ router.post(
     ProductController.createProduct
 );
 
-
-
-// get all products
-router.get(
-    "/",
-    ProductController.getAllProducts
-);
-
-// get single product
-router.get(
-    "/:id",
-    ProductController.getSingleProduct
-);
-
-// update product
 router.patch(
     "/:id",
     auth("admin"),
     uploadFile("products").array("images", 10),
-
-    (req, res, next) => {
-        console.log("BODY =>", req.body);
-        console.log("FILES =>", req.files);
-        next();
-    },
-
     parseProductBody,
     validateRequest(updateProductZodSchema),
     ProductController.updateProduct
 );
+router.patch(
+    "/:id/status",
+    auth("admin"),
+    ProductController.updateProductStatus
+);
+
+// get all products
+router.get("/", ProductController.getAllProducts);
+router.get("/new", ProductController.getNewProducts);
+
+// get single product
+router.get("/:id", ProductController.getSingleProduct);
+
+
 
 // delete product
 router.delete(

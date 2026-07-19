@@ -12,22 +12,21 @@ import AppError from "../../../errors/AppError";
 import { ProductService } from "./product.service";
 
 // create product
-const createProduct = catchAsync(async (req: Request, res: Response) => {
+const createProduct = catchAsync(async (req, res) => {
   const productInfo = req.body;
 
-  // multiple image upload
-  if (req.files && Array.isArray(req.files)) {
-    productInfo.images = req.files.map(
-      (file: Express.Multer.File) =>
-        `/uploads/products/${file.filename}`
-    );
-  }
+  const uploadedImages =
+    Array.isArray(req.files)
+      ? req.files.map(
+        (file: Express.Multer.File) =>
+          `/uploads/products/${file.filename}`
+      )
+      : [];
 
-  const result = await ProductService.createProduct(productInfo);
+  productInfo.images = uploadedImages;
 
-  if (!result) {
-    throw new AppError(status.NOT_FOUND, "Failed to create product");
-  }
+  const result =
+    await ProductService.createProduct(productInfo);
 
   sendResponse(res, {
     statusCode: status.CREATED,
@@ -36,7 +35,6 @@ const createProduct = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
 // get all products
 const getAllProducts = catchAsync(async (req: Request, res: Response) => {
   const { result, total } = await ProductService.getAllProducts(req);
@@ -49,11 +47,20 @@ const getAllProducts = catchAsync(async (req: Request, res: Response) => {
     total,
   });
 });
+const getNewProducts = catchAsync(async (req: Request, res: Response) => {
+  const result = await ProductService.getNewProducts();
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "New Products retrieved successfully",
+    data: result,
+  });
+});
 
 // get single product
 const getSingleProduct = catchAsync(async (req: Request, res: Response) => {
   const result = await ProductService.getSingleProduct(req.params.id as string);
-  console.log({ result, id: req.params.id })
   if (!result) {
     throw new AppError(status.NOT_FOUND, "Product not found");
   }
@@ -69,60 +76,49 @@ const getSingleProduct = catchAsync(async (req: Request, res: Response) => {
 // update product
 
 
-const updateProduct = catchAsync(async (req: Request, res: Response) => {
+const updateProduct = catchAsync(async (req, res) => {
   const { id } = req.params;
+
   const productInfo = req.body;
-  console.log({ id })
-  // existing product
-  const existing = await ProductService.getSingleProduct(id as string);
-  console.log({ existing })
+
+  const existing =
+    await ProductService.getSingleProduct(id as string);
 
   if (!existing) {
-    throw new AppError(status.NOT_FOUND, "Product not found");
+    throw new AppError(
+      status.NOT_FOUND,
+      "Product not found"
+    );
   }
 
-  /**
-   * Normalize existing images from frontend
-   */
+  // Images user kept
+  const existingImages = Array.isArray(
+    productInfo.existingImages
+  )
+    ? productInfo.existingImages
+    : [];
 
-  let existingImages: string[] = [];
-
-  if (productInfo.images) {
-    if (Array.isArray(productInfo.images)) {
-      existingImages = productInfo.images;
-    } else if (typeof productInfo.images === "string") {
-      existingImages = [productInfo.images];
-    }
-  }
-
-
-
-  /**
-   * Newly uploaded images
-   */
-  const uploadedImages: string[] =
-    req.files && Array.isArray(req.files)
+  // Newly uploaded images
+  const uploadedImages =
+    Array.isArray(req.files)
       ? req.files.map(
         (file: Express.Multer.File) =>
-          `/uploads/products/${file.filename} `
+          `/uploads/products/${file.filename}`
       )
       : [];
 
-  /**
-   * Final images to keep in DB
-   */
-  const finalImages = [...existingImages, ...uploadedImages];
+  // Final Images
+  const finalImages = [
+    ...existingImages,
+    ...uploadedImages,
+  ];
 
-  /**
-   * Find deleted images
-   */
+  // Deleted Images
   const deletedImages = existing.images.filter(
     (img: string) => !finalImages.includes(img)
   );
 
-  /**
-   * Delete removed images from server
-   */
+  // Delete removed files
   deletedImages.forEach((img: string) => {
     const imagePath = path.join(process.cwd(), img);
 
@@ -131,22 +127,36 @@ const updateProduct = catchAsync(async (req: Request, res: Response) => {
     }
   });
 
-  /**
-   * Update DB images field
-   */
   productInfo.images = finalImages;
 
-  /**
-   * Update product in DB
-   */
-  const result = await ProductService.updateProduct(id as string, productInfo);
+  delete productInfo.existingImages;
 
-  if (!result) {
-    throw new AppError(status.NOT_FOUND, "Failed to update product");
-  }
+  const result =
+    await ProductService.updateProduct(
+      id as string,
+      productInfo
+    );
 
   sendResponse(res, {
     statusCode: status.OK,
+    success: true,
+    message: "Product updated successfully",
+    data: result,
+  });
+});
+
+
+const updateProductStatus = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const result = await ProductService.updateProductStatus(
+    id as string,
+    status
+  );
+
+  sendResponse(res, {
+    statusCode: 200,
     success: true,
     message: "Product updated successfully",
     data: result,
@@ -194,7 +204,9 @@ const deleteProduct = catchAsync(async (req: Request, res: Response) => {
 export const ProductController = {
   createProduct,
   getAllProducts,
+  getNewProducts,
   getSingleProduct,
   updateProduct,
   deleteProduct,
+  updateProductStatus
 };

@@ -7,6 +7,7 @@ const categorySchema = new Schema<ICategory>(
     userId: { type: Types.ObjectId, ref: Collection.User, required: true, },
     name: { type: String, required: true, trim: true, },
     slug: { type: String, required: true, unique: true, lowercase: true, },
+    featuredProduct: { type: Types.ObjectId, ref: Collection.Product },
     subCategory: { type: [String], default: [], trim: true, },
     description: { type: String, },
     isActive: { type: Boolean, default: true, },

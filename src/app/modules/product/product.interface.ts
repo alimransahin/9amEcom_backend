@@ -33,5 +33,7 @@ export interface IProduct {
 
     images: string[];
 
+    isFetured: boolean;
+    isTrending: boolean;
     isActive: boolean;
 }
