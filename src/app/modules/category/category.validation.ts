@@ -5,11 +5,20 @@ export const createCategorySchema = z.object({
         .string()
         .min(2, "Name must be at least 2 characters"),
 
-    description: z.string().optional(),
-    subCategory: z.array(z.string()).optional(),
-    isActive: z.boolean().optional(),
-    featuredProduct: z.string().optional(),
+    parent: z
+        .string()
+        .nullable()
+        .optional(),
 
+    description: z
+        .string()
+        .optional(),
+
+    isActive: z
+        .coerce
+        .boolean()
+        .optional(),
 });
 
-export const updateCategorySchema = createCategorySchema.partial();
+export const updateCategorySchema =
+    createCategorySchema.partial();

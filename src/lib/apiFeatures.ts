@@ -21,7 +21,7 @@ export const apiFeatures = async <T>(
 ): Promise<ApiFeaturesResponse<T>> => {
 
   const page = +(query._page || 1);
-  const limit = +(query._limit || 20);
+  const limit = +(query._limit || 2000);
   const skip = (page - 1) * limit;
 
   const sort = query._sort?.split(',').join(' ') || '-createdAt';
