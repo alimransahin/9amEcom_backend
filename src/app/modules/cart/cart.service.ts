@@ -26,12 +26,17 @@ const addToCartIntoDB = async (
 };
 
 const getCartFromDB = async (req: Request, userId: string) => {
+    const query = {
+        ...req.query,
+        "_filter[user]": userId,
+    };
+
     const { mongooseQuery, total } = await apiFeatures(
-        Cart.find({ user: userId }).populate("product"),
-        req.query
+        Cart,
+        query as any
     );
 
-    const result = await mongooseQuery;
+    const result = await mongooseQuery.populate("product");
 
     return {
         result,

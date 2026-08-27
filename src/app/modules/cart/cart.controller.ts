@@ -22,7 +22,7 @@ const getCart = catchAsync(async (req, res) => {
         req,
         req.user.userId
     );
-
+    console.log({ result, user: req.user.userId })
     sendResponse(res, {
         statusCode: status.OK,
         success: true,

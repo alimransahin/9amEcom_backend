@@ -4,16 +4,16 @@ import { cartController } from "./cart.controller";
 
 const router = Router();
 
-router.get("/", auth("customer"), cartController.getCart);
+router.get("/", auth("customer", "admin"), cartController.getCart);
 
-router.post("/", auth("customer"), cartController.addToCart);
+router.post("/", auth("customer", "admin"), cartController.addToCart);
 
-router.post("/merge", auth("customer"), cartController.mergeCart);
+router.post("/merge", auth("customer", "admin"), cartController.mergeCart);
 
-router.patch("/:id", auth("customer"), cartController.updateCart);
+router.patch("/:id", auth("customer", "admin"), cartController.updateCart);
 
-router.delete("/clear", auth("customer"), cartController.clearCart);
+router.delete("/clear", auth("customer", "admin"), cartController.clearCart);
 
-router.delete("/:id", auth("customer"), cartController.removeCart);
+router.delete("/:id", auth("customer", "admin"), cartController.removeCart);
 
 export const CartRoutes = router;
