@@ -16,6 +16,8 @@ const userSchema = new Schema<IUser>(
 
         phone: String,
         address: String,
+        upazila: String,
+        district: String,
 
         isActive: { type: Boolean, default: true },
         isVerified: { type: Boolean, default: false },

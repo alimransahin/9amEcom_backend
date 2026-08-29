@@ -2,6 +2,19 @@ import { Request } from "express";
 import { ICart } from "./cart.interface";
 import { Cart } from "./cart.model";
 import { apiFeatures } from "../../../lib/apiFeatures";
+import { Types } from "mongoose";
+
+interface IMergeCartItem {
+    product?: {
+        _id: Types.ObjectId | string;
+        price?: number;
+        discountPrice?: number;
+    };
+
+    color?: string;
+    size?: string;
+    quantity?: number;
+}
 
 const addToCartIntoDB = async (
     userId: string,
@@ -83,26 +96,49 @@ const clearCartFromDB = async (userId: string) => {
 
 const mergeCartIntoDB = async (
     userId: string,
-    items: Partial<ICart>[]
+    items: IMergeCartItem[]
 ) => {
+    console.log({ items });
+
+    if (!items || items.length === 0) {
+        return true;
+    }
+
     for (const item of items) {
+
+        const productId = item.product?._id;
+
+        if (!productId) {
+            continue;
+        }
+
         const existing = await Cart.findOne({
             user: userId,
-            product: item.product,
+            product: productId,
             color: item.color || "",
             size: item.size || "",
         });
 
         if (existing) {
-            existing.quantity += item.quantity || 1;
+
+            existing.quantity +=
+                item.quantity || 1;
+
             await existing.save();
+
         } else {
+
             await Cart.create({
                 user: userId,
-                product: item.product,
+                product: productId,
                 color: item.color || "",
                 size: item.size || "",
                 quantity: item.quantity || 1,
+
+                price:
+                    item.product?.discountPrice ??
+                    item.product?.price ??
+                    0,
             });
         }
     }

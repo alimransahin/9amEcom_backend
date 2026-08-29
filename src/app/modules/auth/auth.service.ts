@@ -7,7 +7,7 @@ import { createToken, verifyToken } from "../../utils/jwt";
 import AppError from "../../../errors/AppError";
 
 // -------------------- REGISTER --------------------
-const registerUser = async (payload: any) => {
+const registerUser = async (payload: any, userId?: string) => {
   const exists = await User.findOne({ email: payload.email });
 
   if (exists) {
@@ -15,7 +15,7 @@ const registerUser = async (payload: any) => {
   }
 
   const hashedPassword = await bcrypt.hash(payload.password, 10);
-
+  payload.role = userId ? "admin" : "customer"
   return await User.create({
     ...payload,
     password: hashedPassword

@@ -116,7 +116,4 @@ const productSchema = new Schema<IProduct>(
     }
 );
 
-export const Product = model<IProduct>(
-    Collection.Product,
-    productSchema
-);
+export const Product = model<IProduct>(Collection.Product, productSchema);

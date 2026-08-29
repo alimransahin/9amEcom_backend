@@ -1,17 +1,11 @@
 import { z } from "zod";
 
 const createOrderValidationSchema = z.object({
-    firstName: z
+    name: z
         .string({
-            message: "First name is required",
+            message: "Name is required",
         })
-        .min(1, "First name is required"),
-
-    lastName: z
-        .string({
-            message: "Last name is required",
-        })
-        .min(1, "Last name is required"),
+        .min(1, "Name is required"),
 
     address: z
         .string({
@@ -73,9 +67,8 @@ const updateOrderValidationSchema = z.object({
         ])
         .optional(),
 
-    firstName: z.string().min(1).optional(),
+    nme: z.string().min(1).optional(),
 
-    lastName: z.string().min(1).optional(),
 
     address: z.string().min(1).optional(),
 

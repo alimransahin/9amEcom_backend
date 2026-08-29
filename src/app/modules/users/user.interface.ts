@@ -12,6 +12,8 @@ export interface IUser {
 
     phone?: string;
     address?: string;
+    district?: string;
+    upazila?: string
 
     isActive: boolean;
     isVerified: boolean;

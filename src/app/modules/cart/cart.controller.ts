@@ -35,7 +35,7 @@ const getCart = catchAsync(async (req, res) => {
 const updateCart = catchAsync(async (req, res) => {
     const result = await cartService.updateCartInDB(
         req.user.userId,
-        req.params.id,
+        req.params.id as string,
         req.body.quantity
     );
 
@@ -50,7 +50,7 @@ const updateCart = catchAsync(async (req, res) => {
 const removeCart = catchAsync(async (req, res) => {
     const result = await cartService.removeCartItemFromDB(
         req.user.userId,
-        req.params.id
+        req.params.id as string
     );
 
     sendResponse(res, {

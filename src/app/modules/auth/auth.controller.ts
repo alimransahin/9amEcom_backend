@@ -8,7 +8,9 @@ import config from "../../config";
 
 // 📝 Register
 const register = catchAsync(async (req: Request, res: Response) => {
-  const result = await AuthService.registerUser(req.body);
+  const userId = req.user?.userId;
+
+  const result = await AuthService.registerUser(req.body, userId);
 
   sendResponse(res, {
     statusCode: status.CREATED,

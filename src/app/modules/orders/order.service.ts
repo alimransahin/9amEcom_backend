@@ -5,11 +5,88 @@ import { Order } from "./order.model";
 import { Product } from "../product/product.model";
 import { apiFeatures } from "../../../lib/apiFeatures";
 import { Request } from "express";
+import mongoose, { Schema } from "mongoose";
+import { User } from "../users/user.model";
 
-const createOrder = async (payload: IOrder) => {
+// ===============================
+// Counter Schema
+// ===============================
+
+const counterSchema = new Schema(
+    {
+        _id: {
+            type: String,
+            required: true,
+        },
+
+        sequence: {
+            type: Number,
+            default: 0,
+        },
+    },
+    {
+        timestamps: true,
+    }
+);
+
+export const Counter = mongoose.model("Counter", counterSchema);
+
+// ===============================
+// Generate Order ID
+// Format: DDMMYYXXX
+// Example: 290826001
+// ===============================
+
+const generateOrderId = async (): Promise<string> => {
+    const now = new Date();
+
+    const day = String(now.getDate()).padStart(2, "0");
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const year = String(now.getFullYear()).slice(-2);
+
+    const datePrefix = `${day}${month}${year}`;
+
+    // Separate counter for every day
+    const counter = await Counter.findOneAndUpdate(
+        {
+            _id: `order-${datePrefix}`,
+        },
+        {
+            $inc: {
+                sequence: 1,
+            },
+        },
+        {
+            new: true,
+            upsert: true,
+        }
+    );
+
+    if (!counter) {
+        throw new AppError(
+            status.INTERNAL_SERVER_ERROR,
+            "Failed to generate order ID"
+        );
+    }
+
+    // 001, 002, 003...
+    const sequence = String(counter.sequence).padStart(3, "0");
+
+    return `${datePrefix}${sequence}`;
+};
+
+export default generateOrderId;
+
+// ===============================
+// Create Order
+// ===============================
+
+const createOrder = async (
+    payload: IOrder,
+    userId?: string
+) => {
     const {
-        firstName,
-        lastName,
+        name,
         address,
         district,
         upazila,
@@ -18,20 +95,38 @@ const createOrder = async (payload: IOrder) => {
         items,
     } = payload;
 
-    // Empty cart check
-    if (!items || items.length === 0) {
+    // ===============================
+    // Empty Cart Check
+    // ===============================
+
+    if (!items?.length) {
         throw new AppError(
             status.BAD_REQUEST,
             "Cart cannot be empty"
         );
     }
 
+    // ===============================
+    // Generate Order ID
+    // ===============================
+
+    const orderId = await generateOrderId();
+
     const orderItems = [];
 
     let subtotal = 0;
 
-    // Calculate every item from database
+    // ===============================
+    // Validate Products
+    // ===============================
+
     for (const item of items) {
+        if (!item.quantity || item.quantity < 1) {
+            throw new AppError(
+                status.BAD_REQUEST,
+                "Invalid product quantity"
+            );
+        }
 
         const product = await Product.findById(
             item.product
@@ -44,7 +139,6 @@ const createOrder = async (payload: IOrder) => {
             );
         }
 
-        // Optional: Check product active status
         if (!product.isActive) {
             throw new AppError(
                 status.BAD_REQUEST,
@@ -52,43 +146,36 @@ const createOrder = async (payload: IOrder) => {
             );
         }
 
-        // Database price
         const price = product.price;
+        const itemTotal = price * item.quantity;
 
-        // Calculate item total
-        const itemTotal =
-            price * item.quantity;
-
-        // Add to subtotal
         subtotal += itemTotal;
 
-        // Create order item from database
         orderItems.push({
             product: product._id,
-
             name: product.name,
-
-            image: product.images[0],
-
+            image: product.images?.[0],
             price,
-
             quantity: item.quantity,
-
             color: item.color,
-
             size: item.size,
         });
     }
 
-    // Shipping calculation
+    // ===============================
+    // Calculate Total
+    // ===============================
+
     const shipping = 0;
-    // Final total
     const total = subtotal + shipping;
 
-    // Create order
-    const result = await Order.create({
-        firstName,
-        lastName,
+    // ===============================
+    // Prepare Order
+    // ===============================
+
+    const orderData: Partial<IOrder> = {
+        orderId,
+        name,
         address,
         district,
         upazila,
@@ -102,21 +189,80 @@ const createOrder = async (payload: IOrder) => {
         total,
 
         status: "pending",
-    });
+
+        ...(userId && {
+            user: userId,
+        }),
+    };
+
+    // ===============================
+    // Update User Address
+    // ===============================
+
+    if (userId) {
+        await User.findByIdAndUpdate(
+            userId,
+            {
+                address,
+                district,
+                upazila,
+            },
+            {
+                new: true,
+            }
+        );
+    }
+
+    // ===============================
+    // Create Order
+    // ===============================
+
+    const result = await Order.create(orderData);
 
     return result;
 };
 
 
-const getAllOrders = async (req: Request) => {
-    const { mongooseQuery, total } = await apiFeatures(
+// ===============================
+// Get My Orders
+// ===============================
+
+const getMyOrders = async (
+    userId: string
+) => {
+
+    const result = await Order.find({
+        user: userId,
+    })
+        .populate("items.product")
+        .sort({
+            createdAt: -1,
+        });
+
+    return result;
+};
+
+
+// ===============================
+// Get All Orders
+// ===============================
+
+const getAllOrders = async (
+    req: Request
+) => {
+
+    const {
+        mongooseQuery,
+        total,
+    } = await apiFeatures(
         Order,
         req.query
     );
 
-    const result = await mongooseQuery
-        .populate("user")
-        .populate("items.product");
+    const result =
+        await mongooseQuery
+            .populate("user")
+            .populate("items.product");
 
     return {
         result,
@@ -125,34 +271,70 @@ const getAllOrders = async (req: Request) => {
 };
 
 
-const getSingleOrder = async (id: string) => {
-    const result = await Order.findById(id)
-        .populate("user")
-        .populate("items.product");
+// ===============================
+// Get Single Order
+// ===============================
+
+const getSingleOrder = async (
+    id: string,
+    userId?: string,
+    role?: string
+) => {
+
+    const query: any = {
+        _id: id,
+    };
+
+
+    // Customer can see only own order
+    if (role === "customer") {
+        query.user = userId;
+    }
+
+
+    const result =
+        await Order.findOne(query)
+            .populate("user")
+            .populate("items.product");
+
 
     return result;
 };
 
+
+// ===============================
+// Update Order
+// ===============================
 
 const updateOrder = async (
     id: string,
     payload: Partial<IOrder>
 ) => {
-    const result = await Order.findByIdAndUpdate(
-        id,
-        payload,
-        {
-            new: true,
-            runValidators: true,
-        }
-    );
+
+    const result =
+        await Order.findByIdAndUpdate(
+            id,
+            payload,
+            {
+                new: true,
+                runValidators: true,
+            }
+        );
 
     return result;
 };
 
 
-const deleteOrder = async (id: string) => {
-    const result = await Order.findByIdAndDelete(id);
+// ===============================
+// Delete Order
+// ===============================
+
+const deleteOrder = async (
+    id: string
+) => {
+
+    const result =
+        await Order.findByIdAndDelete(id);
 
     return result;
 };
@@ -160,6 +342,7 @@ const deleteOrder = async (id: string) => {
 
 export const OrderService = {
     createOrder,
+    getMyOrders,
     getAllOrders,
     getSingleOrder,
     updateOrder,

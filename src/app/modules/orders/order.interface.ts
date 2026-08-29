@@ -15,9 +15,9 @@ export interface IOrderItem {
 
 export interface IOrder {
     user?: Types.ObjectId | string;
+    orderId?: string;
 
-    firstName: string;
-    lastName: string;
+    name: string;
 
     address: string;
     district: string;

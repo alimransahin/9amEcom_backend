@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import { IOrder, IOrderItem } from "./order.interface";
+import { customTransform } from "../../../lib/customTransform";
 
 const orderItemSchema = new Schema<IOrderItem>(
     {
@@ -48,13 +49,14 @@ const orderSchema = new Schema<IOrder>(
             ref: "User",
         },
 
-        firstName: {
+        orderId: {
             type: String,
             required: true,
-            trim: true,
+            unique: true,
+            index: true,
         },
 
-        lastName: {
+        name: {
             type: String,
             required: true,
             trim: true,
@@ -124,6 +126,25 @@ const orderSchema = new Schema<IOrder>(
     },
     {
         timestamps: true,
+
+        toJSON: {
+            transform(_doc, ret, _options) {
+
+                // Order items image transform
+                if (ret.items && Array.isArray(ret.items)) {
+                    ret.items = ret.items.map((item: any) => {
+
+                        if (item.image) {
+                            customTransform(item, ["image"]);
+                        }
+
+                        return item;
+                    });
+                }
+
+                return ret;
+            },
+        },
     }
 );
 

@@ -1,150 +1,188 @@
 import { Request, Response } from "express";
-import httpStatus from "http-status";
+import { status } from "http-status";
+
+import catchAsync from "../../utils/catchAsync";
+import sendResponse from "../../utils/sendResponse";
+import AppError from "../../../errors/AppError";
+
 import { OrderService } from "./order.service";
 
-const createOrder = async (
-    req: Request,
-    res: Response
-) => {
-    try {
-        const result = await OrderService.createOrder(req.body);
 
-        res.status(httpStatus.CREATED).json({
+// ===============================
+// Create Order
+// ===============================
+
+const createOrder = catchAsync(
+    async (req: Request, res: Response) => {
+
+        const userId =
+            req.user?.userId?.toString();
+
+        const result =
+            await OrderService.createOrder(
+                req.body,
+                userId
+            );
+
+        sendResponse(res, {
+            statusCode: status.CREATED,
             success: true,
             message: "Order created successfully",
             data: result,
         });
-    } catch (error) {
-        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: "Failed to create order",
-            error,
-        });
     }
-};
+);
 
+// ===============================
+// Get My Orders
+// ===============================
 
-const getAllOrders = async (
-    req: Request,
-    res: Response
-) => {
-    try {
-        // Pass req for apiFeatures
-        const { result, total } =
-            await OrderService.getAllOrders(req);
+const getMyOrders = catchAsync(
+    async (req: Request, res: Response) => {
 
-        res.status(httpStatus.OK).json({
-            success: true,
-            message: "Orders retrieved successfully",
-            total,
-            data: result,
-        });
-    } catch (error) {
-        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: "Failed to retrieve orders",
-            error,
-        });
-    }
-};
+        const userId = req.user?.userId?.toString();
 
-
-const getSingleOrder = async (
-    req: Request,
-    res: Response
-) => {
-    try {
-        const result = await OrderService.getSingleOrder(
-            req.params.id as string
-        );
-
-        if (!result) {
-            return res.status(httpStatus.NOT_FOUND).json({
-                success: false,
-                message: "Order not found",
-            });
+        if (!userId) {
+            throw new AppError(
+                status.UNAUTHORIZED,
+                "You must be logged in"
+            );
         }
 
-        res.status(httpStatus.OK).json({
+        const result =
+            await OrderService.getMyOrders(userId);
+
+        sendResponse(res, {
+            statusCode: status.OK,
+            success: true,
+            message: "My orders retrieved successfully",
+            data: result,
+        });
+    }
+);
+
+// ===============================
+// Get All Orders
+// ===============================
+
+const getAllOrders = catchAsync(
+    async (req: Request, res: Response) => {
+
+        const {
+            result,
+            total,
+        } = await OrderService.getAllOrders(req);
+
+        sendResponse(res, {
+            statusCode: status.OK,
+            success: true,
+            message: "Orders retrieved successfully",
+            data: result,
+            total,
+        });
+    }
+);
+
+
+// ===============================
+// Get Single Order
+// ===============================
+
+const getSingleOrder = catchAsync(
+    async (req: Request, res: Response) => {
+
+        const userId =
+            req.user?._id?.toString();
+
+        const role =
+            req.user?.role;
+
+        const result =
+            await OrderService.getSingleOrder(
+                req.params.id as string,
+                userId,
+                role
+            );
+
+        if (!result) {
+            throw new AppError(
+                status.NOT_FOUND,
+                "Order not found"
+            );
+        }
+
+        sendResponse(res, {
+            statusCode: status.OK,
             success: true,
             message: "Order retrieved successfully",
             data: result,
         });
-    } catch (error) {
-        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: "Failed to retrieve order",
-            error,
-        });
     }
-};
+);
 
 
-const updateOrder = async (
-    req: Request,
-    res: Response
-) => {
-    try {
-        const result = await OrderService.updateOrder(
-            req.params.id as string,
-            req.body
-        );
+// ===============================
+// Update Order
+// ===============================
+
+const updateOrder = catchAsync(
+    async (req: Request, res: Response) => {
+
+        const result =
+            await OrderService.updateOrder(
+                req.params.id as string,
+                req.body
+            );
 
         if (!result) {
-            return res.status(httpStatus.NOT_FOUND).json({
-                success: false,
-                message: "Order not found",
-            });
+            throw new AppError(
+                status.NOT_FOUND,
+                "Order not found"
+            );
         }
 
-        res.status(httpStatus.OK).json({
+        sendResponse(res, {
+            statusCode: status.OK,
             success: true,
             message: "Order updated successfully",
             data: result,
         });
-    } catch (error) {
-        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: "Failed to update order",
-            error,
-        });
     }
-};
+);
 
 
-const deleteOrder = async (
-    req: Request,
-    res: Response
-) => {
-    try {
-        const result = await OrderService.deleteOrder(
-            req.params.id as string
-        );
+// ===============================
+// Delete Order
+// ===============================
+
+const deleteOrder = catchAsync(
+    async (req: Request, res: Response) => {
+
+        const result =
+            await OrderService.deleteOrder(
+                req.params.id as string
+            );
 
         if (!result) {
-            return res.status(httpStatus.NOT_FOUND).json({
-                success: false,
-                message: "Order not found",
-            });
+            throw new AppError(
+                status.NOT_FOUND,
+                "Order not found"
+            );
         }
 
-        res.status(httpStatus.OK).json({
+        sendResponse(res, {
+            statusCode: status.OK,
             success: true,
             message: "Order deleted successfully",
             data: null,
         });
-    } catch (error) {
-        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: "Failed to delete order",
-            error,
-        });
     }
-};
+);
 
 
 export const OrderController = {
     createOrder,
+    getMyOrders,
     getAllOrders,
     getSingleOrder,
     updateOrder,

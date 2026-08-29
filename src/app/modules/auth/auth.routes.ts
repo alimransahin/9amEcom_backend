@@ -9,7 +9,20 @@ const router = Router();
 /* ======================
    AUTH BASIC
 ====================== */
-router.post("/register", validateRequest(createUserZodSchema), AuthController.register);
+// Public registration
+router.post(
+   "/register",
+   validateRequest(createUserZodSchema),
+   AuthController.register
+);
+
+// Admin creates a user
+router.post(
+   "/create-user",
+   auth("admin"),
+   validateRequest(createUserZodSchema),
+   AuthController.register
+);
 router.post("/login", AuthController.login);
 router.post("/logout", AuthController.logout);
 
