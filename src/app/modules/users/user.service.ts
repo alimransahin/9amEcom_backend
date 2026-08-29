@@ -5,7 +5,7 @@ import { User } from "./user.model";
 const getAllUsers = async (query: Query) => {
     const { mongooseQuery, total } = await apiFeatures(User, query);
 
-    const users = await mongooseQuery;
+    const users = await mongooseQuery.lean();
 
     return {
         data: users,
