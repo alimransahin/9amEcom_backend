@@ -25,12 +25,12 @@ const createOrderValidationSchema = z.object({
         })
         .min(1, "Upazila is required"),
 
-    mobile: z
+    Phone: z
         .string({
-            message: "Mobile number is required",
+            message: "phone number is required",
         })
-        .min(11, "Mobile number must be at least 11 characters")
-        .max(15, "Invalid mobile number"),
+        .min(11, "phone number must be at least 11 characters")
+        .max(15, "Invalid phone number"),
 
     email: z
         .string()
@@ -61,7 +61,7 @@ const updateOrderValidationSchema = z.object({
         .enum([
             "pending",
             "processing",
-            "shipped",
+            "shipping",
             "delivered",
             "cancelled",
         ])
@@ -76,7 +76,7 @@ const updateOrderValidationSchema = z.object({
 
     upazila: z.string().min(1).optional(),
 
-    mobile: z.string().min(11).max(15).optional(),
+    phone: z.string().min(11).max(15).optional(),
 
     email: z
         .string()

@@ -90,7 +90,7 @@ const createOrder = async (
         address,
         district,
         upazila,
-        mobile,
+        phone,
         email,
         items,
     } = payload;
@@ -179,7 +179,7 @@ const createOrder = async (
         address,
         district,
         upazila,
-        mobile,
+        phone,
         email,
 
         items: orderItems,

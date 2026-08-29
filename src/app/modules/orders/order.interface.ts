@@ -23,7 +23,7 @@ export interface IOrder {
     district: string;
     upazila: string;
 
-    mobile: string;
+    phone: string;
     email?: string;
 
     items: IOrderItem[];
@@ -32,7 +32,7 @@ export interface IOrder {
     shipping: number;
     total: number;
 
-    status?: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+    status?: "pending" | "processing" | "shipping" | "delivered" | "cancelled";
 
     createdAt?: Date;
     updatedAt?: Date;

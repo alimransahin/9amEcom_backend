@@ -78,7 +78,7 @@ const orderSchema = new Schema<IOrder>(
             required: true,
         },
 
-        mobile: {
+        phone: {
             type: String,
             required: true,
             trim: true,
@@ -117,7 +117,7 @@ const orderSchema = new Schema<IOrder>(
             enum: [
                 "pending",
                 "processing",
-                "shipped",
+                "shipping",
                 "delivered",
                 "cancelled",
             ],
