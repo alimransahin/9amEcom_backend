@@ -9,7 +9,6 @@ import { Order } from "../orders/order.model";
 
 // 📋 Get All Users
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-    console.log({ query: req.query });
 
     const { data, total } = await UserService.getAllUsers(req.query);
 

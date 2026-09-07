@@ -16,12 +16,16 @@ const brandSchema = new Schema<IBrand>(
   },
   {
     timestamps: true,
+
+
+
     toJSON: {
       transform(_doc, ret, _options) {
-        const imageFields = ['image']
-        customTransform(ret, imageFields)
+        const imageFields = ["logo"];
+
+        customTransform(ret, imageFields);
       },
-    }
+    },
   }
 );
 

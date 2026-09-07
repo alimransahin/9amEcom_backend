@@ -7,6 +7,8 @@ import { apiFeatures } from "../../../lib/apiFeatures";
 import { Request } from "express";
 import mongoose, { Schema } from "mongoose";
 import { User } from "../users/user.model";
+import { IShipping } from "../shop/shop.interface";
+import { Shop } from "../shop/shop.model";
 
 // ===============================
 // Counter Schema
@@ -161,12 +163,30 @@ const createOrder = async (
             size: item.size,
         });
     }
-
     // ===============================
-    // Calculate Total
+    // Calculate Shipping
     // ===============================
 
-    const shipping = 0;
+    const shop = await Shop.findOne();
+
+    if (!shop) {
+        throw new AppError(
+            status.NOT_FOUND,
+            "Shop information not found"
+        );
+    }
+
+    const selectedShipping = shop.shipping?.find(
+        (item: IShipping) =>
+            item.area.trim().toLowerCase() ===
+            district.trim().toLowerCase()
+    );
+
+    const shipping =
+        selectedShipping?.amount ??
+        shop.defaultShippingCharge ??
+        0;
+
     const total = subtotal + shipping;
 
     // ===============================

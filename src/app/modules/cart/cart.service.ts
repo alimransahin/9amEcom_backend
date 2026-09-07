@@ -98,7 +98,6 @@ const mergeCartIntoDB = async (
     userId: string,
     items: IMergeCartItem[]
 ) => {
-    console.log({ items });
 
     if (!items || items.length === 0) {
         return true;
