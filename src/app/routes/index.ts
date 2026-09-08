@@ -8,6 +8,7 @@ import { SizeChartRoutes } from "../modules/size/size.route";
 import { CartRoutes } from "../modules/cart/cart.route";
 import { OrderRoutes } from "../modules/orders/order.route";
 import { ShopRoutes } from "../modules/shop/shop.route";
+import { PurchaseRoutes } from "../modules/purchase/purchase.route";
 
 
 
@@ -22,6 +23,7 @@ const routes = [
   { path: "/cart", route: CartRoutes },
   { path: "/orders", route: OrderRoutes },
   { path: "/shop", route: ShopRoutes },
+  { path: "/purchases", route: PurchaseRoutes },
 
 
 

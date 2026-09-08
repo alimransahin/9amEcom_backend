@@ -5,5 +5,6 @@ export enum Collection {
   User = "User",
   Product = "Product",
   SizeChart = "SizeChart",
+  Purchase = "Purchase",
 }
 
