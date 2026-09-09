@@ -25,7 +25,7 @@ const createOrderValidationSchema = z.object({
         })
         .min(1, "Upazila is required"),
 
-    Phone: z
+    phone: z
         .string({
             message: "phone number is required",
         })

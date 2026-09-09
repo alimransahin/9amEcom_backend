@@ -1,5 +1,19 @@
 import { Types } from "mongoose";
 
+export type IOrderStatus =
+    | "pending"
+    | "processing"
+    | "shipping"
+    | "delivered"
+    | "cancelled";
+
+export interface IOrderShipping {
+    courier: "steadfast";
+    consignmentId?: number;
+    trackingCode?: string;
+    status?: string;
+    createdAt?: Date;
+}
 export interface IOrderItem {
     product: Types.ObjectId | string;
 
@@ -15,7 +29,7 @@ export interface IOrderItem {
 
 export interface IOrder {
     user?: Types.ObjectId | string;
-    orderId?: string;
+    orderId: string;
 
     name: string;
 
@@ -27,12 +41,12 @@ export interface IOrder {
     email?: string;
 
     items: IOrderItem[];
-
+    shippingInfo: IOrderShipping
     subtotal: number;
     shipping: number;
     total: number;
 
-    status?: "pending" | "processing" | "shipping" | "delivered" | "cancelled";
+    status?: IOrderStatus;
 
     createdAt?: Date;
     updatedAt?: Date;

@@ -111,6 +111,28 @@ const orderSchema = new Schema<IOrder>(
             required: true,
             min: 0,
         },
+        shippingInfo: {
+            courier: {
+                type: String,
+                enum: ["steadfast"],
+            },
+
+            consignmentId: {
+                type: Number,
+            },
+
+            trackingCode: {
+                type: String,
+            },
+
+            status: {
+                type: String,
+            },
+
+            createdAt: {
+                type: Date,
+            },
+        },
 
         status: {
             type: String,

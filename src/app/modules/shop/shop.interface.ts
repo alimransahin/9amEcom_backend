@@ -12,6 +12,9 @@ export interface IShop {
     defaultShippingCharge: number;
     shipping: IShipping[];
 
+    steadfastApiKey?: string;
+    steadfastSecretKey?: string;
+
     facebook?: string;
     instagram?: string;
 }

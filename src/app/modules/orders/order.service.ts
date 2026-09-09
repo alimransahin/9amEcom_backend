@@ -9,6 +9,7 @@ import mongoose, { Schema } from "mongoose";
 import { User } from "../users/user.model";
 import { IShipping } from "../shop/shop.interface";
 import { Shop } from "../shop/shop.model";
+import { SteadfastService } from "./steadfast.service";
 
 // ===============================
 // Counter Schema
@@ -331,19 +332,187 @@ const updateOrder = async (
     payload: Partial<IOrder>
 ) => {
 
-    const result =
-        await Order.findByIdAndUpdate(
-            id,
-            payload,
-            {
-                new: true,
-                runValidators: true,
-            }
+    const order = await Order.findById(id);
+    const shop = await Shop.findOne({}).lean();
+    if (!order) {
+        return null;
+    }
+
+    // ==========================================
+    // PROCESSING → CREATE STEADFAST SHIPMENT
+    // ==========================================
+
+    if (
+        payload.status === "shipping" &&
+        order.status !== "shipping" && shop?.steadfastApiKey && shop?.steadfastSecretKey
+    ) {
+
+        // Prevent duplicate shipment
+        if (order.shippingInfo?.consignmentId) {
+            throw new AppError(
+                status.BAD_REQUEST,
+                "This order has already been sent to Steadfast"
+            );
+        }
+
+        // ======================================
+        // Prepare phone
+        // ======================================
+
+        const phone = order.phone.replace(
+            /\D/g,
+            ""
         );
+
+        if (phone.length !== 11) {
+            throw new AppError(
+                status.BAD_REQUEST,
+                "Invalid customer phone number"
+            );
+        }
+
+        // ======================================
+        // Prepare address
+        // ======================================
+
+        const recipientAddress = [
+            order.address,
+            order.upazila,
+            order.district,
+        ]
+            .filter(Boolean)
+            .join(", ");
+
+        // ======================================
+        // Product description
+        // ======================================
+
+        const itemDescription = order.items
+            .map((item) => {
+
+                const variation = [
+                    item.color
+                        ? `Color: ${item.color}`
+                        : null,
+
+                    item.size
+                        ? `Size: ${item.size}`
+                        : null,
+                ]
+                    .filter(Boolean)
+                    .join(", ");
+
+                return `${item.name || "Product"} x ${item.quantity
+                    }${variation
+                        ? ` (${variation})`
+                        : ""
+                    }`;
+            })
+            .join(" | ");
+
+        // ======================================
+        // Total quantity
+        // ======================================
+
+        const totalLot = order.items.reduce(
+            (total, item) =>
+                total + item.quantity,
+            0
+        );
+
+        // ======================================
+        // Create Steadfast shipment
+        // ======================================
+
+        const steadfastResponse =
+            await SteadfastService.createOrder({
+
+                // Your existing unique order ID
+                invoice: order.orderId,
+
+                recipient_name:
+                    order.name,
+
+                recipient_phone:
+                    phone,
+
+                recipient_email:
+                    order.email,
+
+                recipient_address:
+                    recipientAddress,
+
+                // COD amount
+                cod_amount:
+                    order.total,
+
+                note:
+                    `Order ID: ${order.orderId}`,
+
+                item_description:
+                    itemDescription,
+
+                total_lot:
+                    totalLot,
+
+                // Home delivery
+                delivery_type: 0,
+            });
+
+        // ======================================
+        // Validate response
+        // ======================================
+
+        if (
+            steadfastResponse?.status !== 200 ||
+            !steadfastResponse?.consignment
+        ) {
+            throw new AppError(
+                status.BAD_REQUEST,
+                steadfastResponse?.message ||
+                "Failed to create Steadfast shipment"
+            );
+        }
+
+        const consignment =
+            steadfastResponse.consignment;
+
+        // ======================================
+        // Save courier information
+        // ======================================
+
+        order.shippingInfo = {
+            courier: "steadfast",
+
+            consignmentId:
+                consignment.consignment_id,
+
+            trackingCode:
+                consignment.tracking_code,
+
+            status:
+                consignment.status,
+
+            createdAt:
+                new Date(),
+        };
+    }
+
+    // ==========================================
+    // Update order status
+    // ==========================================
+
+    Object.assign(order, payload);
+
+    // ==========================================
+    // Save
+    // ==========================================
+
+    const result =
+        await order.save();
 
     return result;
 };
-
 
 // ===============================
 // Delete Order
