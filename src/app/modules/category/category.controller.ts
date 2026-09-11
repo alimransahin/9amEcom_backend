@@ -18,8 +18,7 @@ const createCategory = catchAsync(async (req, res) => {
   payload.userId = req.user.userId;
 
   if (req.file) {
-    payload.image =
-      `/uploads/categories/${req.file.filename}`;
+    payload.image = `/uploads/categories/${req.file.filename}`;
   }
 
   if (!payload.image) {
@@ -109,7 +108,6 @@ const updateCategory = catchAsync(async (req, res) => {
   }
 
   const payload = req.body;
-
   // =====================================
   // New Image Uploaded
   // =====================================

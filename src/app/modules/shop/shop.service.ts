@@ -9,7 +9,6 @@ const getShopInfo = async () => {
 };
 
 const updateShopInfo = async (payload: Partial<IShop>) => {
-    console.log(payload)
     const result = await Shop.findOneAndUpdate(
         {},
         {

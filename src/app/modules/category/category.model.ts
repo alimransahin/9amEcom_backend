@@ -40,6 +40,11 @@ const categorySchema = new Schema<ICategory>(
       trim: true,
     },
 
+    isFeatured: {
+      type: Boolean,
+      default: true,
+    },
+
     isActive: {
       type: Boolean,
       default: true,

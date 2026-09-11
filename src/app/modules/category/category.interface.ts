@@ -3,19 +3,13 @@ import { IUser } from "../users/user.interface";
 
 export interface ICategory {
   userId: Types.ObjectId | IUser;
-
   name: string;
-
   slug: string;
-
   parent?: Types.ObjectId | ICategory | null;
-
   image: string;
-
   description?: string;
-
+  isFeatured: boolean;
   isActive: boolean;
-
   isDeleted: boolean;
 }
 

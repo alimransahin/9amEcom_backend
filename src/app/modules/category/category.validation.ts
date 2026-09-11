@@ -14,6 +14,13 @@ export const createCategorySchema = z.object({
         .string()
         .optional(),
 
+    isFeatured: z
+        .union([
+            z.boolean(),
+            z.string().transform((value) => value === "true"),
+        ])
+        .optional(),
+
     isActive: z
         .coerce
         .boolean()

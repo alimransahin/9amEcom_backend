@@ -10,6 +10,7 @@ import { OrderRoutes } from "../modules/orders/order.route";
 import { ShopRoutes } from "../modules/shop/shop.route";
 import { PurchaseRoutes } from "../modules/purchase/purchase.route";
 import { BannerRoutes } from "../modules/banner/banner.routes";
+import { AdRoutes } from "../modules/ad/add.routes";
 
 
 
@@ -26,6 +27,7 @@ const routes = [
   { path: "/shop", route: ShopRoutes },
   { path: "/purchases", route: PurchaseRoutes },
   { path: "/banners", route: BannerRoutes },
+  { path: "/ads", route: AdRoutes },
 
 
 
