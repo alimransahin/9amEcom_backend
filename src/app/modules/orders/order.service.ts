@@ -337,7 +337,6 @@ const updateOrder = async (
     if (!order) {
         return null;
     }
-
     // ==========================================
     // PROCESSING → CREATE STEADFAST SHIPMENT
     // ==========================================
@@ -346,7 +345,6 @@ const updateOrder = async (
         payload.status === "shipping" &&
         order.status !== "shipping" && shop?.steadfastApiKey && shop?.steadfastSecretKey
     ) {
-
         // Prevent duplicate shipment
         if (order.shippingInfo?.consignmentId) {
             throw new AppError(
@@ -423,42 +421,41 @@ const updateOrder = async (
         // ======================================
         // Create Steadfast shipment
         // ======================================
+        const steadfastPayload = {
 
-        const steadfastResponse =
-            await SteadfastService.createOrder({
+            // Your existing unique order ID
+            invoice: order.orderId,
 
-                // Your existing unique order ID
-                invoice: order.orderId,
+            recipient_name:
+                order.name,
 
-                recipient_name:
-                    order.name,
+            recipient_phone:
+                phone,
 
-                recipient_phone:
-                    phone,
+            recipient_email:
+                order.email,
 
-                recipient_email:
-                    order.email,
+            recipient_address:
+                recipientAddress,
 
-                recipient_address:
-                    recipientAddress,
+            // COD amount
+            cod_amount:
+                order.total,
 
-                // COD amount
-                cod_amount:
-                    order.total,
+            note:
+                `Order ID: ${order.orderId}`,
 
-                note:
-                    `Order ID: ${order.orderId}`,
+            item_description:
+                itemDescription,
 
-                item_description:
-                    itemDescription,
+            total_lot:
+                totalLot,
 
-                total_lot:
-                    totalLot,
+            // Home delivery
+            delivery_type: 0,
+        }
 
-                // Home delivery
-                delivery_type: 0,
-            });
-
+        const steadfastResponse = await SteadfastService.createOrder(steadfastPayload);
         // ======================================
         // Validate response
         // ======================================

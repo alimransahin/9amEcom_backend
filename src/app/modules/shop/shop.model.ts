@@ -46,6 +46,12 @@ const shopSchema = new Schema<IShop>(
         address: {
             type: String,
         },
+        steadfastApiKey: {
+            type: String
+        },
+        steadfastSecretKey: {
+            type: String
+        },
         defaultShippingCharge: {
             type: Number,
             default: 0,

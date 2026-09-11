@@ -55,6 +55,8 @@ const updateShopValidationSchema = z
         address: z
             .string()
             .optional(),
+        steadfastApiKey: z.string().optional(),
+        steadfastSecretKey: z.string().optional(),
         defaultShippingCharge: z.string().optional(),
 
         shipping: z

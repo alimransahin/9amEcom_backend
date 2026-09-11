@@ -6,5 +6,6 @@ export enum Collection {
   Product = "Product",
   SizeChart = "SizeChart",
   Purchase = "Purchase",
+  Banner = "Banner",
 }
 

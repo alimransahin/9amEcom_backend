@@ -9,6 +9,7 @@ import { CartRoutes } from "../modules/cart/cart.route";
 import { OrderRoutes } from "../modules/orders/order.route";
 import { ShopRoutes } from "../modules/shop/shop.route";
 import { PurchaseRoutes } from "../modules/purchase/purchase.route";
+import { BannerRoutes } from "../modules/banner/banner.routes";
 
 
 
@@ -24,6 +25,7 @@ const routes = [
   { path: "/orders", route: OrderRoutes },
   { path: "/shop", route: ShopRoutes },
   { path: "/purchases", route: PurchaseRoutes },
+  { path: "/banners", route: BannerRoutes },
 
 
 

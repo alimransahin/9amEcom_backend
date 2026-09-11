@@ -2,8 +2,7 @@ import status from "http-status";
 import AppError from "../../../errors/AppError";
 import { Shop } from "../shop/shop.model";
 
-const STEADFAST_BASE_URL =
-    "https://portal.packzy.com/api/v1";
+const STEADFAST_BASE_URL = "https://portal.packzy.com/api/v1";
 
 interface ISteadfastOrderPayload {
     invoice: string;
@@ -23,9 +22,8 @@ const createOrder = async (
 ) => {
     const shop = await Shop.findOne({}).lean();
 
-    const apiKey = shop?.steadfastApiKey;
-    const secretKey = shop?.steadfastSecretKey;
-
+    const apiKey = shop?.steadfastApiKey?.trim();
+    const secretKey = shop?.steadfastSecretKey?.trim();
     if (!apiKey || !secretKey) {
         throw new AppError(
             status.BAD_REQUEST,
@@ -52,7 +50,6 @@ const createOrder = async (
     );
 
     const data = await response.json();
-
     if (!response.ok) {
         throw new AppError(
             status.BAD_REQUEST,
