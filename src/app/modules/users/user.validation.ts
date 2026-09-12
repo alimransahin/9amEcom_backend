@@ -6,7 +6,8 @@ export const createUserZodSchema = z.object({
     email: z.string().email(),
     password: z.string().min(6),
     phone: z.string().optional(),
-    address: z.string().optional()
+    address: z.string().optional(),
+    roleName: z.string().optional(),
 
 });
 

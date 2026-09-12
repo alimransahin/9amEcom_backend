@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 import { IUser, USER_ROLE } from "./user.interface";
 import { Collection } from "../../utils/modelConstants";
+import { Types } from "mongoose";
 
 const userSchema = new Schema<IUser>(
     {
@@ -12,6 +13,11 @@ const userSchema = new Schema<IUser>(
             type: String,
             enum: Object.values(USER_ROLE),
             default: USER_ROLE.CUSTOMER
+        },
+        roleName: {
+            type: Types.ObjectId,
+            ref: Collection.Role,
+            required: false,
         },
 
         phone: String,

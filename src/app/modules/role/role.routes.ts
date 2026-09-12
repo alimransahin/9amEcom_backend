@@ -1,89 +1,71 @@
-
 import { Router } from "express";
 
 import auth from "../../middlewares/auth";
-
 import validateRequest from "../../middlewares/validateRequest";
 
-import { uploadFile } from "../../utils/multer";
-
 import {
-    createBannerSchema,
-    updateBannerSchema,
-} from "./banner.validation";
+    createRoleValidationSchema,
+    updateRoleValidationSchema,
+} from "./role.validation";
 
-import { bannerController } from "./banner.controller";
-
+import { roleController } from "./role.controller";
 
 const router = Router();
 
-
 // =====================================================
-// Create Banner
+// Create Role
 // =====================================================
 
 router.post(
     "/",
     auth("admin"),
-    uploadFile("banners").single("image"),
-    validateRequest(createBannerSchema),
-    bannerController.createBanner
+    validateRequest(
+        createRoleValidationSchema
+    ),
+    roleController.createRole
 );
 
-
 // =====================================================
-// Get All Banners
+// Get All Roles
 // =====================================================
 
 router.get(
     "/",
-    bannerController.getAllBanner
+    auth("admin"),
+    roleController.getAllRole
 );
 
-
 // =====================================================
-// Get Single Banner
+// Get Single Role
 // =====================================================
 
 router.get(
     "/:id",
-    bannerController.getSingleBanner
+    auth("admin"),
+    roleController.getSingleRole
 );
 
+// =====================================================
+// Update Role
+// =====================================================
+
+router.patch(
+    "/:id",
+    auth("admin"),
+    validateRequest(
+        updateRoleValidationSchema
+    ),
+    roleController.updateRole
+);
 
 // =====================================================
-// Delete Banner
+// Delete Role
 // =====================================================
 
 router.delete(
     "/:id",
     auth("admin"),
-    bannerController.deleteBanner
+    roleController.deleteRole
 );
 
-
-// =====================================================
-// Update Banner
-// =====================================================
-
-router.patch(
-    "/:id",
-    auth("admin"),
-    uploadFile("banners").single("image"),
-    validateRequest(updateBannerSchema),
-    bannerController.updateBanner
-);
-
-
-// =====================================================
-// Update Banner Status
-// =====================================================
-
-router.patch(
-    "/:id/status",
-    auth("admin"),
-    bannerController.updateBannerStatus
-);
-
-
-export const BannerRoutes = router;
+export const RoleRoutes = router;

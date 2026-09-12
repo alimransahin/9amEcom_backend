@@ -32,7 +32,6 @@ router.post(
 
 router.get(
     "/",
-    auth("admin"),
     adController.getAllAd
 );
 
@@ -43,7 +42,6 @@ router.get(
 
 router.get(
     "/:id",
-    auth("admin"),
     adController.getSingleAd
 );
 

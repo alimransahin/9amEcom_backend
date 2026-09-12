@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { IRole } from "../role/role.interface";
 
 export enum USER_ROLE {
     ADMIN = "admin",
@@ -12,6 +13,7 @@ export interface IUser {
     password: string;
 
     role: USER_ROLE;
+    roleName?: Types.ObjectId | IRole;
 
     phone?: string;
     address?: string;

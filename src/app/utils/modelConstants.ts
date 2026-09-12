@@ -7,6 +7,7 @@ export enum Collection {
   SizeChart = "SizeChart",
   Purchase = "Purchase",
   Banner = "Banner",
-  Ad = "Ad"
+  Ad = "Ad",
+  Role = "Role",
 }
 
